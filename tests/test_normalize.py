@@ -87,3 +87,16 @@ def test_normalize_invoice_converts_every_field():
     assert invoice.line_items[0].amount == Decimal("50000.00")
     assert invoice.discount == Decimal("0")
     assert invoice.total == Decimal("59000.00")
+
+
+def test_normalize_invoice_reads_numeric_dates_day_first_for_non_usd_currency():
+    invoice = normalize_invoice(load_raw("bharat-inr"))
+    assert invoice.invoice_date == date(2026, 4, 3)
+    assert invoice.due_date == date(2026, 5, 3)
+
+
+def test_normalize_invoice_reads_numeric_dates_month_first_for_usd():
+    raw = load_raw("bharat-inr").model_copy(update={"currency": "USD"})
+    invoice = normalize_invoice(raw)
+    assert invoice.invoice_date == date(2026, 3, 4)
+    assert invoice.due_date == date(2026, 3, 5)
