@@ -18,6 +18,7 @@ _CURRENCY_ALIASES = {
 
 _TEXT_DATE_FORMATS = ["%Y-%m-%d", "%d.%m.%Y", "%d %B %Y", "%d %b %Y", "%B %d, %Y", "%b %d, %Y"]
 _NUMBER = re.compile(r"-?\d[\d.,]*")
+_INVOICE_NUMBER_LABEL = re.compile(r"^(?:No\.|#)\s*:?\s*")
 
 
 def normalize_currency(text: str) -> str:
@@ -57,7 +58,7 @@ def parse_date(text: str, day_first: bool = False) -> date | None:
 
 def clean_invoice_number(text: str) -> str:
     """Removes a leading label such as "No." or "#" that was captured with the number."""
-    return text.strip().lstrip("#No.: ")
+    return _INVOICE_NUMBER_LABEL.sub("", text.strip()).strip()
 
 
 def clean_text(text: str) -> str:
