@@ -117,8 +117,6 @@ jobs:
     permissions:
       contents: read
       pull-requests: read
-    env:
-      CLAUDE_CODE_PACKAGE_DIR: ${{ runner.temp }}/claude-cli/node_modules/@anthropic-ai/claude-code
     steps:
       - uses: actions/checkout@v4
         with:
@@ -150,12 +148,14 @@ jobs:
         if: needs.select.outputs.mode == 'bug'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_CODE_PACKAGE_DIR: ${{ runner.temp }}/claude-cli/node_modules/@anthropic-ai/claude-code
         run: node scripts/autofix/run-fix.mjs
 
       - name: Address Claude review findings on the pull request
         if: needs.select.outputs.mode == 'fixup'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_CODE_PACKAGE_DIR: ${{ runner.temp }}/claude-cli/node_modules/@anthropic-ai/claude-code
           GH_TOKEN: ${{ github.token }}
           FIXUP_PR: ${{ needs.select.outputs.pr }}
         run: node scripts/autofix/address-review.mjs --run "$FIXUP_PR"
