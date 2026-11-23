@@ -134,6 +134,16 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements-dev.txt
 
+      # Claude Code runs its Bash commands in a sandbox here (CLAUDE_CODE_SUBPROCESS_ENV_SCRUB in
+      # scripts/autofix/claude.mjs). The sandbox needs bubblewrap and socat, and Ubuntu 24.04 blocks
+      # the user namespaces bubblewrap uses until the AppArmor restriction is lifted.
+      - name: Install the tools the Claude Code sandbox needs
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq bubblewrap socat
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0 || true
+          bwrap --ro-bind / / --dev /dev --proc /proc true && echo "bubblewrap works"
+
       - name: Install Claude Code CLI
         run: npm install --no-audit --no-fund --prefix "$RUNNER_TEMP/claude-cli" @anthropic-ai/claude-code@latest
 
